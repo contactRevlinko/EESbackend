@@ -10,33 +10,12 @@ connectDB();
 const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 
-const resetAllUsersRequests = require("./controllers/checkAndNotifyPayments");
-
-// ✅ Manual CORS Middleware — runs FIRST before everything
+// ✅ CORS Middleware — Allow all origins
 app.use((req, res, next) => {
-  const origin = req.headers.origin;
-
-  const isAllowed =
-    !origin || // Allow no-origin (mobile, Postman, curl)
-    origin.startsWith("https://ee-sfrontend") ||
-    origin.includes("revlinko-s-projects.vercel.app") ||
-    origin === "https://ees121.com" ||
-    origin === "https://www.ees121.com" ||
-    origin.startsWith("http://localhost");
-
-  if (isAllowed && origin) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-    res.setHeader("Vary", "Origin");
-  }
-
-  // Handle preflight OPTIONS request immediately
-  if (req.method === "OPTIONS") {
-    return res.status(204).end();
-  }
-
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,PATCH,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  if (req.method === "OPTIONS") return res.status(204).end();
   next();
 });
 
