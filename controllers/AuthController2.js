@@ -11,46 +11,108 @@ const {
   distributeReferralRewards,
 } = require("../controllers/paymentController");
 
+// const getUsersByBCategory = async (req, res) => {
+//   try {
+//     const { category, city } = req.body;
+//     console.log("📝 Category:", category, "🏙️ City:", city);
+
+//     // Validate input
+//     if (!category || !city) {
+//       console.log("❌ Missing category or city");
+//       return res.status(400).json({
+//         success: false,
+//         message: "Category and City are required.",
+//       });
+//     }
+//     console.log("✅ Input validated: category and city are present");
+
+//     // Query users based on category and city
+//     console.log("🔍 Querying users in category:", category, "and city:", city);
+//     const users = await UserModel.find({
+//       businessCategory: category,
+//       "address.city": city,
+//       paymentVerified: true,
+//       isAdminApproved: true,
+//     }).select(
+//       "_id name email phone businessCategory address profilePic address businessName userstatus userAverageRating userRatings providerRatings providerAverageRating received_requests sended_requests"
+//     );
+
+//     console.log("Users count:", users.length);
+// //new added
+// console.log(users.map(u => ({
+//   name: u.name,
+//   category: u.businessCategory,
+//   city: u.address.city,
+//   paymentVerified: u.paymentVerified,
+//   approved: u.isAdminApproved
+// })));
+
+//     if (users.length === 0) {
+//       console.log(
+//         "⚠️ No service providers found in this category for your city"
+//       );
+//       return res.status(200).json({
+//         success: true,
+//         message: "No service providers found in this category for your city",
+//         users: [],
+//       });
+//     }
+//     console.log(users, "bc users");
+//     // Send response with fetched users
+//     res.status(200).json({
+//       success: true,
+//       message: `Found ${users.length} service provider(s) 🎉`,
+//       users,
+//     });
+//   } catch (error) {
+//     console.error("💥 Error fetching users:", error);
+//     res.status(500).json({
+//       success: false,
+//       message: "Failed to fetch service providers. Please try again.",
+//       error: process.env.NODE_ENV === "development" ? error.message : undefined,
+//     });
+//   }
+// };
+
+
 const getUsersByBCategory = async (req, res) => {
   try {
-    const { category, city } = req.body;
-    console.log("📝 Category:", category, "🏙️ City:", city);
+    const { category } = req.body;
+    console.log("📝 Category:", category);
 
-    // Validate input
-    if (!category || !city) {
-      console.log("❌ Missing category or city");
+    if (!category) {
       return res.status(400).json({
         success: false,
-        message: "Category and City are required.",
+        message: "Category is required.",
       });
     }
-    console.log("✅ Input validated: category and city are present");
 
-    // Query users based on category and city
-    console.log("🔍 Querying users in category:", category, "and city:", city);
     const users = await UserModel.find({
       businessCategory: category,
-      "address.city": city,
-      paymentVerified: true,
-      isAdminApproved: true,
+      isDeleted: { $ne: true },
     }).select(
-      "_id name email phone businessCategory address profilePic address businessName userstatus userAverageRating userRatings providerRatings providerAverageRating received_requests sended_requests"
+      "_id name email phone businessCategory address profilePic businessName userstatus userAverageRating userRatings providerRatings providerAverageRating received_requests sended_requests paymentVerified isAdminApproved"
     );
 
     console.log("Users count:", users.length);
+    users.forEach((u) => {
+  console.log({
+    name: u.name,
+    category: u.businessCategory,
+    approved: u.isAdminApproved,
+    payment: u.paymentVerified,
+    city: u.address?.city,
+  });
+});  
 
     if (users.length === 0) {
-      console.log(
-        "⚠️ No service providers found in this category for your city"
-      );
       return res.status(200).json({
         success: true,
-        message: "No service providers found in this category for your city",
+        message: "No service providers found in this category",
         users: [],
       });
     }
-    console.log(users, "bc users");
-    // Send response with fetched users
+
     res.status(200).json({
       success: true,
       message: `Found ${users.length} service provider(s) 🎉`,
@@ -65,6 +127,8 @@ const getUsersByBCategory = async (req, res) => {
     });
   }
 };
+
+
 
 const updateUserAddressAndAadhar = async (req, res) => {
   try {
