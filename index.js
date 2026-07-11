@@ -53,3 +53,5 @@ process.on("unhandledRejection", (err) => {
   console.error(`[${serverType}] Unhandled Rejection:`, err);
   process.exit(1);
 });
+
+module.exports = app;
