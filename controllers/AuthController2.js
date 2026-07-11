@@ -88,7 +88,7 @@ const getUsersByBCategory = async (req, res) => {
     }
 
     const users = await UserModel.find({
-      businessCategory: category,
+      businessCategory: { $regex: `^${category.trim()}$`, $options: "i" },
       isDeleted: { $ne: true },
     }).select(
       "_id name email phone businessCategory address profilePic businessName userstatus userAverageRating userRatings providerRatings providerAverageRating received_requests sended_requests paymentVerified isAdminApproved"
@@ -96,14 +96,14 @@ const getUsersByBCategory = async (req, res) => {
 
     console.log("Users count:", users.length);
     users.forEach((u) => {
-  console.log({
-    name: u.name,
-    category: u.businessCategory,
-    approved: u.isAdminApproved,
-    payment: u.paymentVerified,
-    city: u.address?.city,
-  });
-});  
+      console.log({
+        name: u.name,
+        category: u.businessCategory,
+        approved: u.isAdminApproved,
+        payment: u.paymentVerified,
+        city: u.address?.city,
+      });
+    });
 
     if (users.length === 0) {
       return res.status(200).json({
@@ -127,7 +127,6 @@ const getUsersByBCategory = async (req, res) => {
     });
   }
 };
-
 
 
 const updateUserAddressAndAadhar = async (req, res) => {
