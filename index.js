@@ -8,66 +8,42 @@ const port = process.env.PORT || 5001;
 const serverType = "Web Backend";
 connectDB();
 const cookieParser = require("cookie-parser");
-
 const bodyParser = require("body-parser");
 
-// const cronScheduler = require("./middleware/cronScheduler");
-// cronScheduler();
-
 const resetAllUsersRequests = require("./controllers/checkAndNotifyPayments");
-// resetAllUsersRequests();
 
-// Use this to fix the deprecation warning
+// ✅ Manual CORS Middleware — runs FIRST before everything
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  const isAllowed =
+    !origin || // Allow no-origin (mobile, Postman, curl)
+    origin.startsWith("https://ee-sfrontend") ||
+    origin.includes("revlinko-s-projects.vercel.app") ||
+    origin === "https://ees121.com" ||
+    origin === "https://www.ees121.com" ||
+    origin.startsWith("http://localhost");
+
+  if (isAllowed && origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader("Vary", "Origin");
+  }
+
+  // Handle preflight OPTIONS request immediately
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
+
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-const cors = require("cors");
-const allowedOrigins = [
-  "https://ee-sfrontend.vercel.app",
-  "https://ees121.com",
-  "https://www.ees121.com",
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "http://localhost:5175",
-];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow no-origin requests (mobile, curl, Postman)
-    if (!origin) return callback(null, true);
-
-    const allowedList = [
-      "https://ee-sfrontend.vercel.app",
-      "https://ees121.com",
-      "https://www.ees121.com",
-      "http://localhost:5173",
-      "http://localhost:5174",
-      "http://localhost:5175",
-    ];
-
-    // Allow exact match OR any ee-sfrontend vercel preview URL
-    const isAllowed =
-      allowedList.includes(origin) ||
-      origin.startsWith("https://ee-sfrontend") ||
-      origin.includes("revlinko-s-projects.vercel.app");
-
-    if (isAllowed) {
-      callback(null, origin); // reflect exact origin
-    } else {
-      callback(null, false); // silently block (no crash)
-    }
-  },
-  allowedHeaders: ["Content-Type", "Authorization"],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-  maxAge: 86400, // 24 hours
-};
-
-app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
 app.get("/", (req, res) => {
   res.json({
     status: "ok",
@@ -77,6 +53,7 @@ app.get("/", (req, res) => {
     environment: process.env.NODE_ENV || "development",
   });
 });
+
 app.use("/", require("./routes/indexRoute"));
 
 app.listen(port, (err) => {
