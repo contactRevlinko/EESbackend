@@ -1583,11 +1583,18 @@ const forgotPassword = async (req, res) => {
 
       console.log(user, "user1");
       // Send reset code via email
-      await sendEmail(
-        email,
-        "Password Reset Code",
-        `Your password reset code is ${resetCode}`
-      );
+      try {
+        await sendEmail(
+          email,
+          "Password Reset Code",
+          `Your password reset code is ${resetCode}`
+        );
+      } catch (emailError) {
+        console.error("EMAIL SENDING FAILED:", emailError);
+        return res
+          .status(500)
+          .json({ success: false, message: `Email failed to send. Check Gmail App Password. Error: ${emailError.message}` });
+      }
 
       return res
         .status(200)
@@ -1612,8 +1619,8 @@ const forgotPassword = async (req, res) => {
       .status(400)
       .json({ success: false, message: "Email or phone is required" });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Server error" });
+    console.error("FORGOT PASSWORD ERROR:", error);
+    res.status(500).json({ success: false, message: `Server error: ${error.message}`, errorDetails: error.toString() });
   }
 };
 
