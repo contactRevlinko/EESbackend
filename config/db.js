@@ -1,6 +1,9 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
+
+console.log("[DEBUG] MongoDB env type:", typeof process.env.MongoDB);
+console.log("[DEBUG] MongoDB starts with:", process.env.MongoDB?.substring(0, 15));
 const connectDB = async () => {
   try {
     const conn = await mongoose.connect(process.env.MongoDB, {

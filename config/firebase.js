@@ -16,7 +16,7 @@ try {
 } catch (error) {
   throw new Error(`FIREBASE_ADMIN_KEY is not a valid JSON string: ${error.message}`);
 }
-console.log(serviceAccount);
+// console.log(serviceAccount);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
