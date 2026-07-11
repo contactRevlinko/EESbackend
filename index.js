@@ -34,17 +34,28 @@ const allowedOrigins = [
 
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, etc.)
+    // Allow no-origin requests (mobile, curl, Postman)
     if (!origin) return callback(null, true);
 
-    // Allow all ee-sfrontend Vercel preview deployments
-    const isVercelPreview = /^https:\/\/ee-sfrontend.*\.vercel\.app$/.test(origin);
+    const allowedList = [
+      "https://ee-sfrontend.vercel.app",
+      "https://ees121.com",
+      "https://www.ees121.com",
+      "http://localhost:5173",
+      "http://localhost:5174",
+      "http://localhost:5175",
+    ];
 
-    if (allowedOrigins.includes(origin) || isVercelPreview) {
-      callback(null, true);
+    // Allow exact match OR any ee-sfrontend vercel preview URL
+    const isAllowed =
+      allowedList.includes(origin) ||
+      origin.startsWith("https://ee-sfrontend") ||
+      origin.includes("revlinko-s-projects.vercel.app");
+
+    if (isAllowed) {
+      callback(null, origin); // reflect exact origin
     } else {
-      console.warn("[CORS] Blocked origin:", origin);
-      callback(new Error("Not allowed by CORS"));
+      callback(null, false); // silently block (no crash)
     }
   },
   allowedHeaders: ["Content-Type", "Authorization"],
