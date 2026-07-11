@@ -40,7 +40,7 @@
     "concurrently": "^8.2.2"
   },
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "node index.js",
     "build": "npm install --legacy-peer-deps && next build",
     "flutter": "nodemon flutter.js",
     "run-flutter": "nodemon flutter.js",
