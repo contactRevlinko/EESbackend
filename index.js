@@ -25,6 +25,7 @@ app.use(cookieParser());
 const cors = require("cors");
 const corsOptions = {
   origin: [
+    "https://ee-sfrontend.vercel.app",
     "https://ess-frontend-git-master-kriyona-infotechs-projects.vercel.app",
     "https://ees121.com",
     "https://www.ees121.com",
