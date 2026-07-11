@@ -23,16 +23,30 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const cors = require("cors");
+const allowedOrigins = [
+  "https://ee-sfrontend.vercel.app",
+  "https://ees121.com",
+  "https://www.ees121.com",
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+];
+
 const corsOptions = {
-  origin: [
-    "https://ee-sfrontend.vercel.app",
-    "https://ess-frontend-git-master-kriyona-infotechs-projects.vercel.app",
-    "https://ees121.com",
-    "https://www.ees121.com",
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    // Allow all ee-sfrontend Vercel preview deployments
+    const isVercelPreview = /^https:\/\/ee-sfrontend.*\.vercel\.app$/.test(origin);
+
+    if (allowedOrigins.includes(origin) || isVercelPreview) {
+      callback(null, true);
+    } else {
+      console.warn("[CORS] Blocked origin:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   allowedHeaders: ["Content-Type", "Authorization"],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   credentials: true,
