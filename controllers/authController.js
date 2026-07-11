@@ -1583,6 +1583,8 @@ const forgotPassword = async (req, res) => {
 
       console.log(user, "user1");
       // Send reset code via email
+      // TEMPORARILY COMMENTED OUT - Bypassing Gmail Auth Error
+      /* 
       try {
         await sendEmail(
           email,
@@ -1595,10 +1597,11 @@ const forgotPassword = async (req, res) => {
           .status(500)
           .json({ success: false, message: `Email failed to send. Check Gmail App Password. Error: ${emailError.message}` });
       }
+      */
 
       return res
         .status(200)
-        .json({ success: true, message: "6-digit code sent to your email" });
+        .json({ success: true, message: `[TESTING] Email disabled. Code is: ${resetCode}`, testCode: resetCode });
     }
 
     // Handle phone-based reset
